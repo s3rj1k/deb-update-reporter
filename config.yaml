@@ -1,0 +1,98 @@
+Email:
+  Header:
+    From: packages@nodeb.net
+    ReplyTo: no-reply@nodeb.net
+    Subject: DEB Update Info
+    To:
+      - support@nodeb.net
+  SMTP:
+    Address: notify@nodeb.net
+    Password: PASSWORD
+    Port: 587
+    Server: mx.nodeb.net
+Repo:
+- Name: Debian Jessie
+  URL:
+  - http://deb.debian.org/debian/dists/jessie-updates/contrib/binary-amd64/Packages.gz
+  - http://deb.debian.org/debian/dists/jessie-updates/main/binary-amd64/Packages.gz
+  - http://deb.debian.org/debian/dists/jessie-updates/non-free/binary-amd64/Packages.gz
+  - http://deb.debian.org/debian/dists/jessie/contrib/binary-all/Packages.gz
+  - http://deb.debian.org/debian/dists/jessie/contrib/binary-amd64/Packages.gz
+  - http://deb.debian.org/debian/dists/jessie/main/binary-all/Packages.gz
+  - http://deb.debian.org/debian/dists/jessie/main/binary-amd64/Packages.gz
+  - http://deb.debian.org/debian/dists/jessie/non-free/binary-all/Packages.gz
+  - http://deb.debian.org/debian/dists/jessie/non-free/binary-amd64/Packages.gz
+  - http://security.debian.org/debian-security/dists/jessie/updates/contrib/binary-all/Packages.gz
+  - http://security.debian.org/debian-security/dists/jessie/updates/contrib/binary-amd64/Packages.gz
+  - http://security.debian.org/debian-security/dists/jessie/updates/main/binary-all/Packages.gz
+  - http://security.debian.org/debian-security/dists/jessie/updates/main/binary-amd64/Packages.gz
+  - http://security.debian.org/debian-security/dists/jessie/updates/non-free/binary-all/Packages.gz
+  - http://security.debian.org/debian-security/dists/jessie/updates/non-free/binary-amd64/Packages.gz
+  Packages:
+  - Name: apache2-bin
+    VersionNewerThan: 0
+  - Name: dovecot-core
+    VersionNewerThan: 0
+  - Name: mysql-server-core-5.5
+    VersionNewerThan: 0
+  - Name: openssh-server
+    VersionNewerThan: 0
+  - Name: openssl
+    VersionNewerThan: 0
+- Name: MariaDB Jessie
+  URL:
+  - http://mirror.klaus-uwe.me/mariadb/repo/10.1/debian/dists/jessie/main/binary-amd64/Packages.gz
+  - http://mirror.klaus-uwe.me/mariadb/repo/10.2/debian/dists/jessie/main/binary-amd64/Packages.gz
+  Packages:
+  - Name: mariadb-server-core-10.1
+    VersionNewerThan: 0
+  - Name: mariadb-server-core-10.2
+    VersionNewerThan: 0
+- Name: NGiNX Jessie
+  URL:
+  - http://nginx.org/packages/debian/dists/jessie/nginx/binary-amd64/Packages.gz
+  Packages:
+  - Name: nginx
+    VersionNewerThan: 0
+- Name: Debian Unstable
+  URL:
+  - http://deb.debian.org/debian/dists/sid/main/binary-all/Packages.gz
+  - http://deb.debian.org/debian/dists/sid/main/binary-amd64/Packages.gz
+  - http://deb.debian.org/debian/dists/sid/contrib/binary-all/Packages.gz
+  - http://deb.debian.org/debian/dists/sid/contrib/binary-amd64/Packages.gz
+  - http://deb.debian.org/debian/dists/sid/non-free/binary-all/Packages.gz
+  - http://deb.debian.org/debian/dists/sid/non-free/binary-amd64/Packages.gz
+  Packages:
+  - Name: exim4-daemon-heavy
+    VersionNewerThan: 0
+- Name: Debian Jessie Backports
+  URL:
+  - http://deb.debian.org/debian/dists/jessie-backports/main/binary-all/Packages.gz
+  - http://deb.debian.org/debian/dists/jessie-backports/main/binary-amd64/Packages.gz
+  - http://deb.debian.org/debian/dists/jessie-backports/contrib/binary-all/Packages.gz
+  - http://deb.debian.org/debian/dists/jessie-backports/contrib/binary-amd64/Packages.gz
+  - http://deb.debian.org/debian/dists/jessie-backports/non-free/binary-all/Packages.gz
+  - http://deb.debian.org/debian/dists/jessie-backports/non-free/binary-amd64/Packages.gz
+  Packages:
+  - Name: redis-server
+    VersionNewerThan: 0
+- Name: Debian Jessie Sury
+  URL:
+  - https://packages.sury.org/php/dists/jessie/main/binary-amd64/Packages.gz
+  Packages:
+  - Name: php5.6-cli
+    VersionNewerThan: 0
+  - Name: php7.0-cli
+    VersionNewerThan: 0
+  - Name: php7.1-cli
+    VersionNewerThan: 0
+  - Name: php7.2-cli
+    VersionNewerThan: 0
+  - Name: libapache2-mod-php5.6
+    VersionNewerThan: 0
+  - Name: libapache2-mod-php7.0
+    VersionNewerThan: 0
+  - Name: libapache2-mod-php7.1
+    VersionNewerThan: 0
+  - Name: libapache2-mod-php7.2
+    VersionNewerThan: 0
