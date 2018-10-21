@@ -4,7 +4,7 @@ GOCLEAN=$(GOCMD) clean
 GOGET=$(GOCMD) get
 NAME=deb-update-reporter
 
-all: clean build pack
+all: clean build
 build:
 	$(GOBUILD) -ldflags="-s -w" -o $(NAME) -v
 clean:
