@@ -14,12 +14,14 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	"github.com/s3rj1k/go-smtp-html-helper"
 	yaml "gopkg.in/yaml.v2"
 	"pault.ag/go/debian/control"
 	"pault.ag/go/debian/version"
+
+	sendmail "github.com/s3rj1k/go-smtp-html-helper"
 )
 
+// nolint: gochecknoglobals
 var (
 	cmdDryRun       bool
 	cmdUpdateConfig bool
@@ -51,19 +53,8 @@ type config struct {
 	} `yaml:"Repo"`
 }
 
-func init() {
-	// set simple log output
-	log.SetFlags(0)
-	// cmd flags
-	flag.StringVar(&cmdConfigPath, "config-path", "config.yaml", "path to config file")
-	flag.BoolVar(&cmdUpdateConfig, "update-config", true, "save config before exit")
-	flag.BoolVar(&cmdDryRun, "dry-run", false, "print to console instead of sending email")
-	flag.Parse()
-}
-
 func getPackagesBinaryIndexURL(urls []string) ([]control.BinaryIndex, error) {
-
-	out := make([]control.BinaryIndex, 0)
+	out := []control.BinaryIndex{}
 
 	// set http client config
 	var client = &http.Client{
@@ -77,7 +68,6 @@ func getPackagesBinaryIndexURL(urls []string) ([]control.BinaryIndex, error) {
 	}
 
 	for _, url := range urls {
-
 		// get data from remote URL
 		response, err := client.Get(url)
 		if err != nil {
@@ -92,10 +82,11 @@ func getPackagesBinaryIndexURL(urls []string) ([]control.BinaryIndex, error) {
 
 		// set default reader
 		var reader io.ReadCloser
+		// declare control index
+		var index []control.BinaryIndex
 
 		// Check that the server actually sent compressed data
 		switch response.Header.Get("Content-Type") {
-
 		case "gzip", "application/x-gzip", "application/gzip":
 			// decode gzip
 			reader, err = gzip.NewReader(response.Body)
@@ -105,7 +96,7 @@ func getPackagesBinaryIndexURL(urls []string) ([]control.BinaryIndex, error) {
 			defer reader.Close()
 
 			// parse binary index
-			index, err := control.ParseBinaryIndex(bufio.NewReader(reader))
+			index, err = control.ParseBinaryIndex(bufio.NewReader(reader))
 			if err != nil {
 				return []control.BinaryIndex{}, errors.Wrapf(err, "failed to parse URL=%s", url)
 			}
@@ -115,7 +106,7 @@ func getPackagesBinaryIndexURL(urls []string) ([]control.BinaryIndex, error) {
 
 		case "text/plain":
 			// parse binary index
-			index, err := control.ParseBinaryIndex(bufio.NewReader(response.Body))
+			index, err = control.ParseBinaryIndex(bufio.NewReader(response.Body))
 			if err != nil {
 				return []control.BinaryIndex{}, errors.Wrapf(err, "failed to parse URL=%s", url)
 			}
@@ -170,7 +161,6 @@ func getPackagesBinaryIndexURL(urls []string) ([]control.BinaryIndex, error) {
 }
 
 func getConfig(path string) (config, error) {
-
 	var c config
 
 	// read file from disk
@@ -189,7 +179,6 @@ func getConfig(path string) (config, error) {
 }
 
 func saveConfig(c config, path string) error {
-
 	// encode config
 	newConfig, err := yaml.Marshal(c)
 	if err != nil {
@@ -197,7 +186,7 @@ func saveConfig(c config, path string) error {
 	}
 
 	// write file to disk
-	err = ioutil.WriteFile(path, newConfig, 644)
+	err = ioutil.WriteFile(path, newConfig, 0644)
 	if err != nil {
 		return err
 	}
@@ -206,6 +195,14 @@ func saveConfig(c config, path string) error {
 }
 
 func main() {
+	// set simple log output
+	log.SetFlags(0)
+
+	// cmd flags
+	flag.StringVar(&cmdConfigPath, "config-path", "config.yaml", "path to config file")
+	flag.BoolVar(&cmdUpdateConfig, "update-config", true, "save config before exit")
+	flag.BoolVar(&cmdDryRun, "dry-run", false, "print to console instead of sending email")
+	flag.Parse()
 
 	// output map
 	m := make(map[string]map[string]version.Version)
@@ -218,9 +215,10 @@ func main() {
 
 	// loop-over repos inside config
 	for _, repo := range c.Repo {
+		var bIndex []control.BinaryIndex
 
 		// parse repo db
-		bIndex, err := getPackagesBinaryIndexURL(repo.URL)
+		bIndex, err = getPackagesBinaryIndexURL(repo.URL)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -231,11 +229,13 @@ func main() {
 			for _, pkg := range repo.Packages {
 				// check if package in config
 				if strings.EqualFold(pkg.Name, pkgIndex.Package) {
+					var ver version.Version
 					// parse version string
-					ver, err := version.Parse(pkg.VersionNewerThan)
+					ver, err = version.Parse(pkg.VersionNewerThan)
 					if err != nil {
 						log.Fatal(err)
 					}
+
 					// compare version
 					if version.Compare(pkgIndex.Version, ver) > 0 {
 						// update config
@@ -244,6 +244,7 @@ func main() {
 						if m[repo.Name] == nil {
 							m[repo.Name] = make(map[string]version.Version)
 						}
+
 						m[repo.Name][pkgIndex.Package] = pkgIndex.Version
 					}
 				}
@@ -252,11 +253,11 @@ func main() {
 	}
 
 	// prepare output string
-	out := make([]string, 0)
+	out := []string{}
 	for name, pkgs := range m {
 		out = append(out, fmt.Sprintf("%s:\n", name))
-		for pkg, version := range pkgs {
-			out = append(out, fmt.Sprintf("\t%s: %s\n", pkg, version.String()))
+		for pkg, ver := range pkgs {
+			out = append(out, fmt.Sprintf("\t%s: %s\n", pkg, ver.String()))
 		}
 	}
 

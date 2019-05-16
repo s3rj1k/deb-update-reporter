@@ -1,0 +1,15 @@
+github.com/kjk/lzma v0.0.0-20161016003348-3fd93898850d/go.mod h1:phT/jsRPBAEqjAibu1BurrabCBNTYiVI+zbmyCZJY6Q=
+github.com/pkg/errors v0.8.1 h1:iURUrRGxPUNPdy5/HRSm+Yj6okJ6UtLINN0Q9M4+h3I=
+github.com/pkg/errors v0.8.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
+github.com/s3rj1k/go-smtp-html-helper v1.0.0 h1:NPAVCu6odFp8wn8aXt0BYpOR2KHNuCuWkzrkJnHM8bQ=
+github.com/s3rj1k/go-smtp-html-helper v1.0.0/go.mod h1:ZQlMwF4todvU117KLuR4Nv/1ZBwKpcxV5eWxcuGkRcQ=
+github.com/xi2/xz v0.0.0-20171230120015-48954b6210f8/go.mod h1:HUYIGzjTL3rfEspMxjDjgmT5uz5wzYJKVo23qUhYTos=
+golang.org/x/crypto v0.0.0-20190103213133-ff983b9c42bc h1:F5tKCVGp+MUAHhKp5MZtGqAlGX3+oCsiL1Q629FL90M=
+golang.org/x/crypto v0.0.0-20190103213133-ff983b9c42bc/go.mod h1:6SG95UA2DQfeDnfUPMdvaQW0Q7yPrPDi9nlGo2tz2b4=
+gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
+gopkg.in/yaml.v2 v2.2.2 h1:ZCJp+EgiOT7lHqUV2J862kp8Qj64Jo6az82+3Td9dZw=
+gopkg.in/yaml.v2 v2.2.2/go.mod h1:hI93XBmqTisBFMUTm0b8Fm+jr3Dg1NNxqwp+5A1VGuI=
+pault.ag/go/debian v0.0.0-20190503013421-5ce5adb1d840 h1:U1b9FUlDOqBL7ekSVA8tGU/fBkO2CB2b5eKtsCt4MiQ=
+pault.ag/go/debian v0.0.0-20190503013421-5ce5adb1d840/go.mod h1:e7Gva9AMoKtUKYJ1G9kIesbh+4VS2JnAOS8VWafyTCk=
+pault.ag/go/topsort v0.0.0-20160530003732-f98d2ad46e1a h1:WwS7vlB5H2AtwKj1jsGwp2ZLud1x6WXRXh2fXsRqrcA=
+pault.ag/go/topsort v0.0.0-20160530003732-f98d2ad46e1a/go.mod h1:INqx0ClF7kmPAMk2zVTX8DRnhZ/yaA/Mg52g8KFKE7k=
