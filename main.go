@@ -1,200 +1,24 @@
 package main
 
 import (
-	"bufio"
-	"compress/gzip"
 	"flag"
 	"fmt"
-	"io"
-	"io/ioutil"
 	"log"
-	"net"
-	"net/http"
 	"strings"
-	"time"
 
-	"github.com/pkg/errors"
-	yaml "gopkg.in/yaml.v2"
 	"pault.ag/go/debian/control"
 	"pault.ag/go/debian/version"
 
 	sendmail "github.com/s3rj1k/go-smtp-html-helper"
 )
 
-// nolint: gochecknoglobals
-var (
-	cmdDryRun       bool
-	cmdUpdateConfig bool
-	cmdConfigPath   string
-)
-
-type config struct {
-	Email struct {
-		Header struct {
-			From    string   `yaml:"From"`
-			ReplyTo string   `yaml:"ReplyTo"`
-			Subject string   `yaml:"Subject"`
-			To      []string `yaml:"To"`
-		} `yaml:"Header"`
-		SMTP struct {
-			Address  string `yaml:"Address"`
-			Password string `yaml:"Password"`
-			Port     int    `yaml:"Port"`
-			Server   string `yaml:"Server"`
-		} `yaml:"SMTP"`
-	} `yaml:"Email"`
-	Repo []struct {
-		Name     string   `yaml:"Name"`
-		URL      []string `yaml:"URL"`
-		Packages []*struct {
-			Name             string `yaml:"Name"`
-			VersionNewerThan string `yaml:"VersionNewerThan"`
-		} `yaml:"Packages"`
-	} `yaml:"Repo"`
-}
-
-func getPackagesBinaryIndexURL(urls []string) ([]control.BinaryIndex, error) {
-	out := []control.BinaryIndex{}
-
-	// set http client config
-	var client = &http.Client{
-		Timeout: time.Second * 60,
-		Transport: &http.Transport{
-			Dial: (&net.Dialer{
-				Timeout: 30 * time.Second,
-			}).Dial,
-			TLSHandshakeTimeout: 30 * time.Second,
-		},
-	}
-
-	for _, url := range urls {
-		// get data from remote URL
-		response, err := client.Get(url)
-		if err != nil {
-			return []control.BinaryIndex{}, err
-		}
-		defer response.Body.Close()
-
-		// error 404
-		if response.StatusCode == 404 {
-			return []control.BinaryIndex{}, fmt.Errorf("remote URL not found: %s", url)
-		}
-
-		// set default reader
-		var reader io.ReadCloser
-		// declare control index
-		var index []control.BinaryIndex
-
-		// Check that the server actually sent compressed data
-		switch response.Header.Get("Content-Type") {
-		case "gzip", "application/x-gzip", "application/gzip":
-			// decode gzip
-			reader, err = gzip.NewReader(response.Body)
-			if err != nil {
-				return []control.BinaryIndex{}, errors.Wrapf(err, "failed to parse URL=%s", url)
-			}
-			defer reader.Close()
-
-			// parse binary index
-			index, err = control.ParseBinaryIndex(bufio.NewReader(reader))
-			if err != nil {
-				return []control.BinaryIndex{}, errors.Wrapf(err, "failed to parse URL=%s", url)
-			}
-
-			// append to output
-			out = append(out, index...)
-
-		case "text/plain":
-			// parse binary index
-			index, err = control.ParseBinaryIndex(bufio.NewReader(response.Body))
-			if err != nil {
-				return []control.BinaryIndex{}, errors.Wrapf(err, "failed to parse URL=%s", url)
-			}
-
-			// append to output
-			out = append(out, index...)
-
-		case "application/octet-stream":
-			switch {
-			// decode gzip by URL suffix
-			case strings.HasSuffix(url, ".gz"):
-				// decode gzip
-				reader, err = gzip.NewReader(response.Body)
-				if err != nil {
-					return []control.BinaryIndex{}, errors.Wrapf(err, "failed to parse URL=%s", url)
-				}
-				defer reader.Close()
-
-				// parse binary index
-				index, err := control.ParseBinaryIndex(bufio.NewReader(reader))
-				if err != nil {
-					return []control.BinaryIndex{}, errors.Wrapf(err, "failed to parse URL=%s", url)
-				}
-
-				// append to output
-				out = append(out, index...)
-
-			default:
-				// parse binary index
-				index, err := control.ParseBinaryIndex(bufio.NewReader(response.Body))
-				if err != nil {
-					return []control.BinaryIndex{}, errors.Wrapf(err, "failed to parse URL=%s", url)
-				}
-
-				// append to output
-				out = append(out, index...)
-			}
-
-		default:
-			// parse binary index
-			index, err := control.ParseBinaryIndex(bufio.NewReader(response.Body))
-			if err != nil {
-				return []control.BinaryIndex{}, errors.Wrapf(err, "failed to parse URL=%s", url)
-			}
-
-			// append to output
-			out = append(out, index...)
-		}
-	}
-
-	return out, nil
-}
-
-func getConfig(path string) (config, error) {
-	var c config
-
-	// read file from disk
-	f, err := ioutil.ReadFile(path)
-	if err != nil {
-		return config{}, err
-	}
-
-	// decode yaml
-	err = yaml.Unmarshal(f, &c)
-	if err != nil {
-		return config{}, err
-	}
-
-	return c, nil
-}
-
-func saveConfig(c config, path string) error {
-	// encode config
-	newConfig, err := yaml.Marshal(c)
-	if err != nil {
-		return err
-	}
-
-	// write file to disk
-	err = ioutil.WriteFile(path, newConfig, 0644)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func main() {
+	var (
+		cmdDryRun       bool
+		cmdUpdateConfig bool
+		cmdConfigPath   string
+	)
+
 	// set simple log output
 	log.SetFlags(0)
 
