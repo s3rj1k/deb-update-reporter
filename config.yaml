@@ -1,21 +1,18 @@
 Email:
-  Header:
-    From: packages@nodeb.net
-    ReplyTo: no-reply@nodeb.net
+  Headers:
+    From: packages@domain.net
     Subject: DEB Update Info
-    To:
-      - support@nodeb.net
+    ReplyTo: no-reply@domain.net
+  To:
+    - support@domain.net
   SMTP:
-    Address: notify@nodeb.net
-    Password: PASSWORD
+    Server: mx.domain.net
     Port: 587
-    Server: mx.nodeb.net
+    Address: notify@domain.net
+    Password: password
 Repo:
 - Name: Debian Jessie
   URL:
-  - http://deb.debian.org/debian/dists/jessie-updates/contrib/binary-amd64/Packages.gz
-  - http://deb.debian.org/debian/dists/jessie-updates/main/binary-amd64/Packages.gz
-  - http://deb.debian.org/debian/dists/jessie-updates/non-free/binary-amd64/Packages.gz
   - http://deb.debian.org/debian/dists/jessie/contrib/binary-all/Packages.gz
   - http://deb.debian.org/debian/dists/jessie/contrib/binary-amd64/Packages.gz
   - http://deb.debian.org/debian/dists/jessie/main/binary-all/Packages.gz
@@ -65,17 +62,6 @@ Repo:
   Packages:
   - Name: exim4-daemon-heavy
     VersionNewerThan: 0
-- Name: Debian Jessie Backports
-  URL:
-  - http://deb.debian.org/debian/dists/jessie-backports/main/binary-all/Packages.gz
-  - http://deb.debian.org/debian/dists/jessie-backports/main/binary-amd64/Packages.gz
-  - http://deb.debian.org/debian/dists/jessie-backports/contrib/binary-all/Packages.gz
-  - http://deb.debian.org/debian/dists/jessie-backports/contrib/binary-amd64/Packages.gz
-  - http://deb.debian.org/debian/dists/jessie-backports/non-free/binary-all/Packages.gz
-  - http://deb.debian.org/debian/dists/jessie-backports/non-free/binary-amd64/Packages.gz
-  Packages:
-  - Name: redis-server
-    VersionNewerThan: 0
 - Name: Debian Jessie Sury
   URL:
   - https://packages.sury.org/php/dists/jessie/main/binary-amd64/Packages.gz
@@ -88,6 +74,8 @@ Repo:
     VersionNewerThan: 0
   - Name: php7.2-cli
     VersionNewerThan: 0
+  - Name: php7.3-cli
+    VersionNewerThan: 0
   - Name: libapache2-mod-php5.6
     VersionNewerThan: 0
   - Name: libapache2-mod-php7.0
@@ -95,4 +83,6 @@ Repo:
   - Name: libapache2-mod-php7.1
     VersionNewerThan: 0
   - Name: libapache2-mod-php7.2
+    VersionNewerThan: 0
+  - Name: libapache2-mod-php7.3
     VersionNewerThan: 0

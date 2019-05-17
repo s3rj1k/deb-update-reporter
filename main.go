@@ -24,7 +24,7 @@ func main() {
 
 	// cmd flags
 	flag.StringVar(&cmdConfigPath, "config-path", "config.yaml", "path to config file")
-	flag.BoolVar(&cmdUpdateConfig, "update-config", true, "save config before exit")
+	flag.BoolVar(&cmdUpdateConfig, "update-config", false, "save config before exit")
 	flag.BoolVar(&cmdDryRun, "dry-run", false, "print to console instead of sending email")
 	flag.Parse()
 
@@ -85,39 +85,36 @@ func main() {
 		}
 	}
 
-	// only do if output non-empty
-	if len(out) > 0 {
-		if !cmdDryRun {
+	// nothing to do
+	if len(out) == 0 {
+		return
+	}
+
+	// print or send email
+	if !cmdDryRun {
+		for _, addr := range c.Email.To {
 			// SMTP config
-			var mail sendmail.Config
-			mail.Headers.From = c.Email.Header.From
-			mail.Headers.ReplyTo = c.Email.Header.ReplyTo
-			mail.Headers.Subject = c.Email.Header.Subject
-			mail.Headers.IsText = true
-			mail.Body.Message = strings.Join(out, "")
-			mail.SMTP.Server = c.Email.SMTP.Server
-			mail.SMTP.Port = c.Email.SMTP.Port
-			mail.SMTP.Email = c.Email.SMTP.Address
-			mail.SMTP.Password = c.Email.SMTP.Password
-			// send email to multiple addresses
-			for _, to := range c.Email.Header.To {
-				// set TO header
-				mail.Headers.To = to
-				// send actual mail
-				err = mail.Send()
-				if err != nil {
-					log.Println(err)
-				}
+			mail := sendmail.Config{
+				Headers: c.Email.Headers,
+				SMTP:    c.Email.SMTP,
+				Body:    strings.Join(out, ""),
 			}
-		} else {
-			fmt.Printf("%s", strings.Join(out, ""))
+
+			// set TO header
+			mail.Headers.To = addr
+
+			// send email
+			if err = mail.SendText(); err != nil {
+				log.Println(err)
+			}
 		}
+	} else {
+		fmt.Printf("%s", strings.Join(out, ""))
 	}
 
 	// save config
 	if cmdUpdateConfig {
-		err = saveConfig(c, cmdConfigPath)
-		if err != nil {
+		if err = saveConfig(c, cmdConfigPath); err != nil {
 			log.Fatal(err)
 		}
 	}

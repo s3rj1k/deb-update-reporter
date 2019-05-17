@@ -3,34 +3,41 @@ package main
 import (
 	"bufio"
 	"compress/gzip"
+	"context"
+	"crypto/tls"
 	"fmt"
 	"io"
-	"net"
 	"net/http"
 	"strings"
 	"time"
 
 	"github.com/pkg/errors"
+	"golang.org/x/net/context/ctxhttp"
 	"pault.ag/go/debian/control"
 )
 
 func getPackagesBinaryIndexURL(urls []string) ([]control.BinaryIndex, error) {
 	out := []control.BinaryIndex{}
 
-	// set http client config
-	var client = &http.Client{
-		Timeout: time.Second * 60,
-		Transport: &http.Transport{
-			Dial: (&net.Dialer{
-				Timeout: 30 * time.Second,
-			}).Dial,
-			TLSHandshakeTimeout: 30 * time.Second,
+	// custom transport config
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true, // nolint: gosec
 		},
 	}
 
+	// custom http client config
+	var client = &http.Client{
+		Transport: tr,
+	}
+
 	for _, url := range urls {
+		// set timeout
+		ctx, cancel := context.WithTimeout(context.Background(), 90*time.Second)
+		defer cancel()
+
 		// get data from remote URL
-		response, err := client.Get(url)
+		response, err := ctxhttp.Get(ctx, client, url)
 		if err != nil {
 			return nil, err
 		}
@@ -64,7 +71,6 @@ func getPackagesBinaryIndexURL(urls []string) ([]control.BinaryIndex, error) {
 
 			// append to output
 			out = append(out, index...)
-
 		case "text/plain":
 			// parse binary index
 			index, err = control.ParseBinaryIndex(bufio.NewReader(response.Body))
@@ -74,7 +80,6 @@ func getPackagesBinaryIndexURL(urls []string) ([]control.BinaryIndex, error) {
 
 			// append to output
 			out = append(out, index...)
-
 		case "application/octet-stream":
 			switch {
 			// decode gzip by URL suffix
@@ -94,7 +99,6 @@ func getPackagesBinaryIndexURL(urls []string) ([]control.BinaryIndex, error) {
 
 				// append to output
 				out = append(out, index...)
-
 			default:
 				// parse binary index
 				index, err := control.ParseBinaryIndex(bufio.NewReader(response.Body))
@@ -105,7 +109,6 @@ func getPackagesBinaryIndexURL(urls []string) ([]control.BinaryIndex, error) {
 				// append to output
 				out = append(out, index...)
 			}
-
 		default:
 			// parse binary index
 			index, err := control.ParseBinaryIndex(bufio.NewReader(response.Body))

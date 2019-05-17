@@ -3,32 +3,25 @@ package main
 import (
 	"io/ioutil"
 
+	sendmail "github.com/s3rj1k/go-smtp-html-helper"
 	yaml "gopkg.in/yaml.v2"
 )
 
 type config struct {
 	Email struct {
-		Header struct {
-			From    string   `yaml:"From"`
-			ReplyTo string   `yaml:"ReplyTo"`
-			Subject string   `yaml:"Subject"`
-			To      []string `yaml:"To"`
-		} `yaml:"Header"`
-		SMTP struct {
-			Address  string `yaml:"Address"`
-			Password string `yaml:"Password"`
-			Port     int    `yaml:"Port"`
-			Server   string `yaml:"Server"`
-		} `yaml:"SMTP"`
-	} `yaml:"Email"`
+		Headers sendmail.HeadersConfig `json:"Headers" yaml:"Headers"`
+		SMTP    sendmail.SMTPConfig    `json:"SMTP" yaml:"SMTP"`
+		To      []string               `json:"To" yaml:"To"`
+	} `json:"Email" yaml:"Email"`
 	Repo []struct {
-		Name     string   `yaml:"Name"`
-		URL      []string `yaml:"URL"`
+		Name string   `json:"Name" yaml:"Name"`
+		URL  []string `json:"URL" yaml:"URL"`
+
 		Packages []*struct {
-			Name             string `yaml:"Name"`
-			VersionNewerThan string `yaml:"VersionNewerThan"`
-		} `yaml:"Packages"`
-	} `yaml:"Repo"`
+			Name             string `json:"Name" yaml:"Name"`
+			VersionNewerThan string `json:"VersionNewerThan" yaml:"VersionNewerThan"`
+		} `json:"Packages" yaml:"Packages"`
+	} `json:"Repo" yaml:"Repo"`
 }
 
 func getConfig(path string) (config, error) {
